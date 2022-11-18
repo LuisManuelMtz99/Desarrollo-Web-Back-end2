@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "Hash": "3dk1y1plwAubrABqDXv9CZwhrHwwV1yZOtI6Lhgbumk=",
+  "Source": "JuegosApi",
+  "BasePath": "_content/JuegosApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "JuegosApi\\wwwroot",
+      "Source": "JuegosApi",
+      "ContentRoot": "C:\\Users\\Equipo\\source\\repos\\JuegosApi\\JuegosApi\\wwwroot\\",
+      "BasePath": "_content/JuegosApi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\Equipo\\source\\repos\\JuegosApi\\JuegosApi\\wwwroot\\Juegos.txt",
+      "SourceId": "JuegosApi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Equipo\\source\\repos\\JuegosApi\\JuegosApi\\wwwroot\\",
+      "BasePath": "_content/JuegosApi",
+      "RelativePath": "Juegos.txt",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\Juegos.txt"
+    }
+  ]
+}
