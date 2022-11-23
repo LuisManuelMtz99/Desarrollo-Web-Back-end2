@@ -1,9 +1,10 @@
 ﻿using JuegosApi.Entidades;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace JuegosApi
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -19,6 +20,7 @@ namespace JuegosApi
 
         public DbSet<Juego> Juegos { get; set; }
         public DbSet<Dato> Datos { get; set; }
+ 
 
         public DbSet<JuegoDato> JuegoDato { get; set; }
     }

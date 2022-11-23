@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using JuegosApi.Validaciones;
+using Microsoft.AspNetCore.Identity;
 
 namespace JuegosApi.Entidades
 
@@ -13,6 +14,9 @@ namespace JuegosApi.Entidades
         public string Genero { get; set; }
         public DateTime? FechaCreacion { get; set; }
 
+        public string UsuarioId { get; set; }
+
+        public IdentityUser Usuario { get; set; }
 
         public List<JuegoDato> JuegoDato { get; set; }
     }

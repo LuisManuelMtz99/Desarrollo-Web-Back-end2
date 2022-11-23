@@ -5,15 +5,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JuegosApi.DTOs;
 using JuegosApi.Entidades;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace JuegosApi.Controllers
 {
     [ApiController]
     [Route("datos")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class DatosController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
         private readonly IMapper mapper;
+        private readonly UserManager<IdentityUser> userManager;
+
 
         public DatosController(ApplicationDbContext context, IMapper mapper)
         {
@@ -49,33 +55,51 @@ namespace JuegosApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(DatoCreacionDTO datoCreacionDTO)
+        [AllowAnonymous]
+        public async Task<ActionResult> Post(int datoId, DatoCreacionDTO datoCreacionDTO)
         {
+            var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+            var email = emailClaim.Value;
 
-            if (datoCreacionDTO.JuegosIds == null)
+            var usuario = await userManager.FindByEmailAsync(email);
+            var usuarioId = usuario.Id;
+
+            var existeClase = await dbContext.Datos.AnyAsync(claseDB => claseDB.Id == datoId);
+            if (!existeClase)
             {
-                return BadRequest("No se puede crear datos sin juegos.");
+                return NotFound();
             }
 
-            var juegosIds = await dbContext.Juegos
-                .Where(juegoBD => datoCreacionDTO.JuegosIds.Contains(juegoBD.Id)).Select(x => x.Id).ToListAsync();
-
-            if (datoCreacionDTO.JuegosIds.Count != juegosIds.Count)
-            {
-                return BadRequest("No existe uno de los juegos enviados");
-            }
-
-            var dato = mapper.Map<Dato>(datoCreacionDTO);
-
-            OrdenarPorJuegos(dato);
-
-            dbContext.Add(dato);
+            var curso = mapper.Map<Dato>(datoCreacionDTO);
+            curso.Id = datoId;
+            curso.UsuarioId = usuarioId;
+            dbContext.Add(curso);
             await dbContext.SaveChangesAsync();
 
-            var datoDTO = mapper.Map<DatoDTO>(dato);
+            var datoDTO = mapper.Map<DatoDTO>(curso);
 
-            return CreatedAtRoute("obtenerDato", new { id = dato.Id }, datoDTO);
+            return CreatedAtRoute("obtenerDato", new { id = curso.Id, claseId = datoId }, datoDTO);
         }
+
+        // [HttpPut("{id:int}")]
+        // public async Task<ActionResult> Put(int id, DatoCreacionDTO datoCreacionDTO)
+        // {
+        // var datoDB = await dbContext.Datos
+        //        .Include(x => x.JuegoDato)
+        //       .FirstOrDefaultAsync(x => x.Id == id);
+        //
+        //    if (datoDB == null)
+        //  {
+        //      return NotFound();
+        //}
+
+        // datoDB = mapper.Map(datoCreacionDTO, datoDB);
+
+        // OrdenarPorJuegos(datoDB);
+
+        // await dbContext.SaveChangesAsync();
+        //    return NoContent();
+        //}
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(int id, DatoCreacionDTO datoCreacionDTO)
@@ -122,30 +146,30 @@ namespace JuegosApi.Controllers
             }
         }
 
-        //[HttpPatch("{id:int}")]
-        // public async Task<ActionResult> Patch(int id, JsonPatchDocument<CategoriaPatchDTO> patchDocument)
-        // {
-        //   if (patchDocument == null) { return BadRequest(); }
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> Patch(int id, JsonPatchDocument<DatoPatchDTO> patchDocument)
+         {
+           if (patchDocument == null) { return BadRequest(); }
 
-        //   var categoriaDB = await dbContext.Categorias.FirstOrDefaultAsync(x => x.Id == id);
+           var categoriaDB = await dbContext.Datos.FirstOrDefaultAsync(x => x.Id == id);
 
-        //    if (categoriaDB == null) { return NotFound(); }
+            if (categoriaDB == null) { return NotFound(); }
 
-        //    var categoriaDTO = mapper.Map<CategoriaPatchDTO>(categoriaDB);
+           var categoriaDTO = mapper.Map<DatoPatchDTO>(categoriaDB);
 
-        //    patchDocument.ApplyTo(categoriaDTO);
-        //
-        //    var isValid = TryValidateModel(categoriaDTO);
+           patchDocument.ApplyTo(categoriaDTO);
+        
+            var isValid = TryValidateModel(categoriaDTO);
 
-        //    if (!isValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+           if (!isValid)
+           {
+                return BadRequest(ModelState);
+           }
 
-        //    mapper.Map(categoriaDTO, categoriaDB);
+           mapper.Map(categoriaDTO, categoriaDB);
 
-        //     await dbContext.SaveChangesAsync();
-        //    return NoContent();
-        // }
+            await dbContext.SaveChangesAsync();
+         return NoContent();
+        }
     }
 }

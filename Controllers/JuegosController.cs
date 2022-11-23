@@ -11,6 +11,8 @@ namespace JuegosApi.Controllers
 {
     [ApiController]
     [Route("juegos")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "EsAdmin")]
+
     public class JuegosController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
